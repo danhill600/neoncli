@@ -65,6 +65,13 @@ else:
     else:
         print(selection_fn + "'s membership has lapsed.")
 
+donprompt = input("Type 'd' to add a donation or 'q' to quit.")
+
+if donprompt == 'd':
+    nc.add_donation(sessionid, selection_acct, selection_fn)
+else:
+    pass
+
 
 
 #logging out
