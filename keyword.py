@@ -17,61 +17,15 @@ sessionid = nc.get_sesh(apikey, instance)
 
 #searching accounts by keyword
 
-asrslist = nc.get_asrs_list(sessionid)
+print("Welcome to NeonCLI. Enter 'q' at any time to quit.")
 
-resultcount = 0
-for asr in asrslist:
-    print(str(resultcount) + "\t" +
-          str(asr['accountId']) + "\t" +
-          asr['firstName'] + " " +
-          asr['lastName'])
-    resultcount += 1
-
-print(str(resultcount) + " accounts match the keyword.")
-selection = input("select account: ")
-selection_acct = asrslist[int(selection)]['accountId']
-selection_fn = asrslist[int(selection)]['firstName']
-selection_ln = asrslist[int(selection)]['lastName']
-print("You selected account #" + str(selection_acct))
-print("\n")
-print("First Name: " + selection_fn)
-print("Last Name: " + selection_ln)
-
-mem_list = nc.print_memberships(sessionid, selection_acct)
-mem_count = 0
-
-bigdate = datetime.datetime(1900,1,1)
-
-if not mem_list:
-    print(selection_fn + " " + selection_ln + " is not now nor ever has been" +
-          " a member.")
-else:
-    print("Membership History:")
-    print("---------------------------------------------------------")
-    print("NAME" + "\t" + "\t" + "\t" + "EXP_DATE" + "\t" + "TYPE" + "\t" +  "STATUS")
-    for mem in mem_list:
-        print(str(mem['membershipName']) + "\t" +
-              str(mem['termEndDate'])[:10] + "\t" + mem['enrollmentType'] +
-                  "\t" + mem['status'])
-        thisdate = datetime.datetime.strptime(mem['termEndDate'][:10],"%Y-%m-%d")
-        if thisdate > bigdate:
-            bigdate = thisdate
-
-    print("---------------------------------------------------------")
-
-    print(bigdate)
-    if bigdate > datetime.datetime.now():
-        print(selection_fn + " " + "is a current member.")
+while True:
+    asrslist = nc.get_asrs_list_by_keyword(sessionid)
+    if asrslist:
+        selection_acct, selection_fn, selection_ln = nc.get_acct_from_list(asrslist, sessionid)
+        nc.show_menu(selection_acct, selection_fn, selection_ln, sessionid)
     else:
-        print(selection_fn + "'s membership has lapsed.")
-
-donprompt = input("Type 'd' to add a donation or 'q' to quit.")
-
-if donprompt == 'd':
-    nc.add_donation(sessionid, selection_acct, selection_fn)
-else:
-    pass
-
+        print("no results found")
 
 
 #logging out
